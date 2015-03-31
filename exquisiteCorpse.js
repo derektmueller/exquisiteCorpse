@@ -16,6 +16,7 @@ var ExquisiteCorpse = (function () {
 
 function ExquisiteCorpse () {
     this.imageDimensions = [27, 36];
+    this.h = null;
     this.init ();
 };
 
@@ -102,7 +103,9 @@ ExquisiteCorpse.prototype.learn = function () {
             var nn = new NN ([
                 pixelCount / 2, pixelCount / 2, pixelCount / 2]);
             nn.trainingSet = dataset;
+            nn.enableGradientChecking = false;
             var Theta = nn.gradientDescent (18, 0.10);
+            that.h = nn.getH (Theta);
         })
         .catch (function (error) {
             /**/console.log (error); console.log (error.stack);

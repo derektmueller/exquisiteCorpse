@@ -1,0 +1,23 @@
+/*
+https://github.com/parenparen/
+
+Copyright 2013 Derek Mueller
+Released under the MIT license
+http://opensource.org/licenses/MIT
+*/
+
+.jd-canvas-container {
+    border: 1px solid black;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.jd-save-button {
+    float: right;
+}
+
+.jd-source-button {
+    float: right;
+    margin-right: -2px;
+}
+

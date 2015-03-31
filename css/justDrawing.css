@@ -1,0 +1,24 @@
+/*
+https://github.com/parenparen/
+
+Copyright 2013 Derek Mueller
+Released under the MIT license
+http://opensource.org/licenses/MIT
+*/
+/* line 9, ../sass/justDrawing.scss */
+.jd-canvas-container {
+  border: 1px solid black;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* line 15, ../sass/justDrawing.scss */
+.jd-save-button {
+  float: right;
+}
+
+/* line 19, ../sass/justDrawing.scss */
+.jd-source-button {
+  float: right;
+  margin-right: -2px;
+}

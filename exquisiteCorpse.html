@@ -6,9 +6,24 @@
   <script src="math.js" type="text/javascript"></script>
   <script src="d3.js" type="text/javascript"></script>
   <script src="jquery.js"></script>
+  <script src="prototypes.js"></script>
+  <script src="JustDrawing.js"></script>
   <script src="NN.js"></script>
+
+  <link href="css/justDrawing.css" rel="stylesheet" type="text/css" />
+  <link href="css/exquisiteCorpse.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
-  <script src="exquisiteCorpseFrontend.js"></script>
+
+<div id='canvas-container'></div>
+
+<script src="exquisiteCorpseFrontend.js"></script>
+<script>
+(function () {
+  var Theta = [];
+  var exquisiteCorpse = new ExquisiteCorpseFrontend (Theta); 
+}) ();
+</script>
+
 </body>
 </html>

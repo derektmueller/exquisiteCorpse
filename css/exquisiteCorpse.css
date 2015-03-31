@@ -1,0 +1,31 @@
+/* line 2, ../sass/exquisiteCorpse.scss */
+body {
+  text-align: center;
+}
+
+/* line 6, ../sass/exquisiteCorpse.scss */
+#canvas-container, .jd-controls {
+  margin: auto;
+}
+
+/* line 10, ../sass/exquisiteCorpse.scss */
+.jd-clear-button, .jd-clear-button:active, .jd-clear-button:focus {
+  outline: 0;
+  width: 400px;
+  margin: 0;
+  background: none;
+  border: 1px solid black;
+  border-bottom: none;
+  box-sizing: border-box;
+}
+
+/* line 21, ../sass/exquisiteCorpse.scss */
+.jd-clear-button:hover {
+  cursor: pointer;
+  background: #f3f3f3;
+}
+
+/* line 27, ../sass/exquisiteCorpse.scss */
+#canvas-container {
+  padding: 0;
+}

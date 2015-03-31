@@ -1,0 +1,30 @@
+
+body {
+    text-align: center;
+}
+
+#canvas-container, .jd-controls {
+    margin: auto;
+}
+
+.jd-clear-button, .jd-clear-button:active, .jd-clear-button:focus {
+    outline: 0;
+    width: 400px;
+    margin: 0;
+    background: none;
+    border: 1px solid black;
+    border-bottom: none;
+    box-sizing: border-box;
+}
+
+.jd-clear-button {
+    &:hover {
+        cursor: pointer;
+        background: rgb(243, 243, 243);
+    }
+}
+
+#canvas-container {
+    padding: 0;
+}
+

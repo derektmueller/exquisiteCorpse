@@ -1,4 +1,4 @@
-#!/usr/bin/node
+//#!/usr/bin/node
 
 if (typeof require !== 'undefined') {
     var math = require ('mathjs');
@@ -156,7 +156,8 @@ NN.prototype.map = function (x, callback) {
  * @return Array hypothesis
  */
 NN.prototype.forwardProp = function (Theta, X, i) {
-    i = typeof i === 'undefined' ? this.L - 2 : i; 
+    var L = Theta.length + 1;
+    i = typeof i === 'undefined' ? L - 2 : i; 
     if (i === -1) {
         this.a[i + 1] = X;
     } else {
@@ -519,6 +520,8 @@ return NN;
 
 if (typeof module !== 'undefined') module.exports = NN;
 
+if (typeof GLOBAL !== 'undefined') {
+
 GLOBAL.test = function () {
     
 //    // test reshape
@@ -803,3 +806,4 @@ GLOBAL.test = function () {
 //    }) ();
 };
 
+}

@@ -1,0 +1,22 @@
+
+body {
+    text-align: center;
+}
+
+#canvas-container, .jd-controls {
+    margin: auto;
+}
+
+.jd-clear-button {
+    width: 400px;
+    margin: 0;
+    background: none;
+    border: 1px solid black;
+    border-bottom: none;
+    box-sizing: border-box;
+}
+
+#canvas-container {
+    padding: 0;
+}
+
