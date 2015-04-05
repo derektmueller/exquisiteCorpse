@@ -3,13 +3,26 @@ body {
     text-align: center;
 }
 
-#canvas-container, .jd-controls {
+#canvas-container,
+#ai-canvas-container, .jd-controls {
     margin: auto;
+}
+
+#canvas-container {
+    cursor: pointer;
+}
+
+#ai-paper, #canvas-container canvas:last-child {
+    border: 1px solid black;
+}
+
+#ai-paper {
+    border-top: none;
 }
 
 .jd-clear-button, .jd-clear-button:active, .jd-clear-button:focus {
     outline: 0;
-    width: 400px;
+    //width: 400px;
     margin: 0;
     background: none;
     border: 1px solid black;

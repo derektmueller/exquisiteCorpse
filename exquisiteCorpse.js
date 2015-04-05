@@ -7,27 +7,40 @@ var exec = require ('child_process').exec,
     getPixels = require ('get-pixels'),
     NN = require ('./NN'),
     PCA = require ('./PCA'),
+    ExquisiteCorpseBase = require ('./exquisiteCorpseBase'),
     fs = require ('fs')
     ;
 
 Q.longStackSupport = true;
 
-var ExquisiteCorpse = (function () {
+var exquisiteCorpse = (function () {
 
 function ExquisiteCorpse () {
+    this.parseArgs ();
     this.imageDimensions = [27, 36];
+    this.imageDirectory = 'compressedImages';
     this.h = null;
+    ExquisiteCorpseBase.call (this);
     this.init ();
 };
 
+ExquisiteCorpse.prototype = Object.create (ExquisiteCorpseBase.prototype);
+
+/**
+ * Get list of image filenames
+ */
 ExquisiteCorpse.prototype.getFileList = function () {
+    var that = this;
     return Q.Promise (function (resolve) { 
-        exec ('find compressedImages/ -type f', function (err, out) {
-            resolve (out.replace (/\n$/, '').split ("\n").slice (0, 8));
+        exec ('find ' + that.imageDirectory + ' -type f', function (err, out) {
+            resolve (out.replace (/\n$/, '').split ("\n").slice (0, 16));
         });
     });
 };
 
+/**
+ * Extract pixel data from each file in fileList
+ */
 ExquisiteCorpse.prototype.vectorizeImages = function (fileList) {
     var that = this;
     return Q.all (fileList.map (function (filename) { 
@@ -42,6 +55,9 @@ ExquisiteCorpse.prototype.vectorizeImages = function (fileList) {
     }));
 };
 
+/**
+ * Process image data into neural net input
+ */
 ExquisiteCorpse.prototype.buildDataset = function () {
     var that = this;
     return Q.Promise (function (resolve) {
@@ -49,18 +65,7 @@ ExquisiteCorpse.prototype.buildDataset = function () {
             .then (that.vectorizeImages.bind (that))
             .then (function (imageData) { 
 
-                // categorize pixels (white or not white)
-                var dataset = [];
-                for (var i in imageData) {
-                    var data = imageData[i];
-                    var values = [];
-                    for (var i = 0; i < data.length; i += 4) {
-                        values.push (
-                            data[i] + data[i + 1] + data[i + 2] == (255 * 3) ? 0 : 1
-                        ); 
-                    }
-                    dataset.push (values);
-                }
+                var dataset = imageData.map (that.categorizePixels);
 
                 // reduce dimensionality
 //                var pca = new PCA (dataset, null, 99)
@@ -95,6 +100,9 @@ ExquisiteCorpse.prototype.buildDataset = function () {
     });
 };
 
+/**
+ * Learn neural net parameters from processed image data
+ */
 ExquisiteCorpse.prototype.learn = function () {
     var that = this;
     this.buildDataset ()
@@ -104,12 +112,34 @@ ExquisiteCorpse.prototype.learn = function () {
                 pixelCount / 2, pixelCount / 2, pixelCount / 2]);
             nn.trainingSet = dataset;
             nn.enableGradientChecking = false;
-            var Theta = nn.gradientDescent (18, 0.10);
+            var Theta = nn.gradientDescent (300, 0.10);
             that.h = nn.getH (Theta);
+//           console.log ('dataset[0]; = ');
+//           console.log (dataset[0][0].length);
+//            that.h (dataset[0][0]);
+            //return;
+            fs.writeFile (that.options.filename, JSON.stringify (Theta), function (err) {
+            });
         })
         .catch (function (error) {
             /**/console.log (error); console.log (error.stack);
         });
+};
+
+
+ExquisiteCorpse.prototype.parseArgs = function () {
+    var getOpt = require('node-getopt').create([
+        ['f', 'filename=ARG' , 'output file'],
+    ])          
+    .bindHelp();
+
+    var opt = getOpt.parseSystem();
+    if (!opt.options.filename) {
+        getOpt.showHelp ();
+        process.exit ();
+    }
+
+    this.options = opt.options;
 };
 
 ExquisiteCorpse.prototype.init = function () {

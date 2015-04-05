@@ -18,7 +18,8 @@ function JustDrawing (argsDict) {
         container: null,
         width: 100,
         height: 100,
-        name: ''
+        name: '',
+        onClear: function () {}
     };
 
     proto.unpack.apply (this, [argsDict, defaultPropsDict]);
@@ -129,6 +130,7 @@ JustDrawing.prototype._setUpControls = function () {
         var surface = that._getSurface ()
         surface.clearCanvases ();
         surface.getTopCanvas ().paths.stroke.clearCommands ();
+        that.onClear ();
     });
 
     $(controls).width (this.width);

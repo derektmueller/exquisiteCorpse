@@ -4,14 +4,29 @@ body {
 }
 
 /* line 6, ../sass/exquisiteCorpse.scss */
-#canvas-container, .jd-controls {
+#canvas-container,
+#ai-canvas-container, .jd-controls {
   margin: auto;
 }
 
-/* line 10, ../sass/exquisiteCorpse.scss */
+/* line 11, ../sass/exquisiteCorpse.scss */
+#canvas-container {
+  cursor: pointer;
+}
+
+/* line 15, ../sass/exquisiteCorpse.scss */
+#ai-paper, #canvas-container canvas:last-child {
+  border: 1px solid black;
+}
+
+/* line 19, ../sass/exquisiteCorpse.scss */
+#ai-paper {
+  border-top: none;
+}
+
+/* line 23, ../sass/exquisiteCorpse.scss */
 .jd-clear-button, .jd-clear-button:active, .jd-clear-button:focus {
   outline: 0;
-  width: 400px;
   margin: 0;
   background: none;
   border: 1px solid black;
@@ -19,13 +34,13 @@ body {
   box-sizing: border-box;
 }
 
-/* line 21, ../sass/exquisiteCorpse.scss */
+/* line 34, ../sass/exquisiteCorpse.scss */
 .jd-clear-button:hover {
   cursor: pointer;
   background: #f3f3f3;
 }
 
-/* line 27, ../sass/exquisiteCorpse.scss */
+/* line 40, ../sass/exquisiteCorpse.scss */
 #canvas-container {
   padding: 0;
 }

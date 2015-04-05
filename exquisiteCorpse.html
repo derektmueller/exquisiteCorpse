@@ -9,6 +9,7 @@
   <script src="prototypes.js"></script>
   <script src="JustDrawing.js"></script>
   <script src="NN.js"></script>
+  <script src="exquisiteCorpseBase.js"></script>
 
   <link href="css/justDrawing.css" rel="stylesheet" type="text/css" />
   <link href="css/exquisiteCorpse.css" rel="stylesheet" type="text/css" />
@@ -16,12 +17,14 @@
 <body>
 
 <div id='canvas-container'></div>
+<div id='ai-canvas-container'>
+  <canvas id='ai-paper'></canvas>
+</div>
 
 <script src="exquisiteCorpseFrontend.js"></script>
 <script>
 (function () {
-  var Theta = [];
-  var exquisiteCorpse = new ExquisiteCorpseFrontend (Theta); 
+  exquisiteCorpse = new ExquisiteCorpseFrontend (); 
 }) ();
 </script>
 
