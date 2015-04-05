@@ -46,6 +46,10 @@ ExquisiteCorpseFrontend.prototype.setUpNN = function (Theta) {
     this.nn = new NN (S);
     this.h = this.nn.getH (Theta);
     console.log ('done');
+    var that = this;
+    setInterval (function () {
+        that.vectorizeDrawing ();
+    }, 250);
 };
 
 ExquisiteCorpseFrontend.prototype.scaleDownImage = function (data) {
@@ -103,7 +107,7 @@ ExquisiteCorpseFrontend.prototype.categoriesToPixels = function (data) {
 };
 
 ExquisiteCorpseFrontend.prototype.threshold = function (data, threshold) {
-    threshold = typeof threshold === 'undefined' ? 0.5 : threshold; 
+    threshold = typeof threshold === 'undefined' ? 0.99 : threshold; 
     data = data.map (function (elem) {    
         return elem > threshold ? 1 : 0;
     });
@@ -115,40 +119,35 @@ ExquisiteCorpseFrontend.prototype.restoreImage = function (hypothesis) {
     this.putImageData (pixels);
 };
 
-ExquisiteCorpseFrontend.prototype.putImageData = function (pixels) {
+ExquisiteCorpseFrontend.prototype.putImageData = function (pixels, canvas) {
+    canvas = typeof canvas === 'undefined' ? this.aiPaper$[0] : canvas; 
     var imageData = this.getImageData ();
     for (var i = 0; i < pixels.length; i++) {
         imageData.data[i] = pixels[i];
     }
-    this.getCtx ().putImageData (imageData, 0, 0);
+    this.getCtx (canvas).putImageData (imageData, 0, 0);
 };
 
-ExquisiteCorpseFrontend.prototype.getCtx = function (userCanvas) {
-    userCanvas = typeof userCanvas === 'undefined' ? false : userCanvas; 
-    if (userCanvas) {
-        var canvas = this.userPaper$[0];
-    } else {
-        var canvas = this.aiPaper$[0];
-    }
+ExquisiteCorpseFrontend.prototype.getCtx = function (canvas) {
+    canvas = typeof canvas === 'undefined' ? this.aiPaper$[0] : canvas; 
     return canvas.getContext ('2d');
 };
 
-ExquisiteCorpseFrontend.prototype.getImageData = function (userCanvas) {
-    userCanvas = typeof userCanvas === 'undefined' ? false : userCanvas; 
-    var canvas = this.userPaper$[0];
-    var ctx = this.getCtx (userCanvas);
+ExquisiteCorpseFrontend.prototype.getImageData = function (canvas) {
+    canvas = typeof canvas === 'undefined' ? this.aiPaper$[0] : canvas; 
+    var ctx = this.getCtx (canvas);
     return ctx.getImageData (0, 0, canvas.width, canvas.height);
 };
 
 ExquisiteCorpseFrontend.prototype.vectorizeDrawing = function () {
-    var imageData = this.getImageData (true);
+    var imageData = this.getImageData (this.userPaper$[0]);
     var example = this.scaleDownImage (this.categorizePixels (imageData.data));
     //console.log (this.categorizePixels (imageData.data).reverse ());
     //console.log (example.reverse ());
     this.restoreImage (this.h (example));
     return;
     var pixels = this.categoriesToPixels (this.scaleUpImage (example));
-    this.putImageData (pixels);
+    this.putImageData (pixels, this.userPaperCompressed$[0]);
 };
 
 ExquisiteCorpseFrontend.prototype.setUpPaper = function () {
@@ -160,6 +159,14 @@ ExquisiteCorpseFrontend.prototype.setUpPaper = function () {
         height: this.canvasDimensions[1],
         onClear: function () {
             that.getCtx ().clearRect (0, 0, that.aiPaper$[0].width, that.aiPaper$[0].height);
+            that.getCtx (that.userPaperCompressed$[0]).
+                clearRect (0, 0, that.aiPaper$[0].width, that.aiPaper$[0].height);
+        },
+        onDrag: function () {
+            var imageData = that.getImageData (that.userPaper$[0]);
+            var example = that.scaleDownImage (that.categorizePixels (imageData.data));
+            var pixels = that.categoriesToPixels (that.scaleUpImage (example));
+            that.putImageData (pixels, that.userPaperCompressed$[0]);
         }
     });
     var canvas = sketchpad.getCanvas ().canvas;
@@ -168,6 +175,10 @@ ExquisiteCorpseFrontend.prototype.setUpPaper = function () {
     this.aiPaper$ = $('#ai-paper');
     this.aiPaper$.attr ('height', this.userPaper$[0].height);
     this.aiPaper$.attr ('width', this.userPaper$[0].width);
+
+    this.userPaperCompressed$ = $('#canvas-compressed');
+    this.userPaperCompressed$.attr ('height', this.userPaper$[0].height);
+    this.userPaperCompressed$.attr ('width', this.userPaper$[0].width);
 };
 
 ExquisiteCorpseFrontend.prototype.init = function () {

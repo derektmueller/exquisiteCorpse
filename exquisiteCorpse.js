@@ -17,8 +17,10 @@ var exquisiteCorpse = (function () {
 
 function ExquisiteCorpse () {
     this.parseArgs ();
-    this.imageDimensions = [27, 36];
-    this.imageDirectory = 'compressedImages';
+    //this.imageDimensions = [27, 36];
+    //this.imageDirectory = 'compressedImages';
+    this.imageDimensions = [90, 120];
+    this.imageDirectory = 'images';
     this.h = null;
     ExquisiteCorpseBase.call (this);
     this.init ();
@@ -33,7 +35,8 @@ ExquisiteCorpse.prototype.getFileList = function () {
     var that = this;
     return Q.Promise (function (resolve) { 
         exec ('find ' + that.imageDirectory + ' -type f', function (err, out) {
-            resolve (out.replace (/\n$/, '').split ("\n").slice (0, 16));
+            //resolve (out.replace (/\n$/, '').split ("\n").slice (0, 16));
+            resolve (out.replace (/\n$/, '').split ("\n").slice (0, 1));
         });
     });
 };
@@ -109,10 +112,12 @@ ExquisiteCorpse.prototype.learn = function () {
         .then (function (dataset) {
             var pixelCount = math.prod (that.imageDimensions);
             var nn = new NN ([
-                pixelCount / 2, pixelCount / 2, pixelCount / 2]);
+                pixelCount / 2, 
+                pixelCount / 2, 
+                pixelCount / 2]);
             nn.trainingSet = dataset;
             nn.enableGradientChecking = false;
-            var Theta = nn.gradientDescent (300, 0.10);
+            var Theta = nn.gradientDescent (1, 0.10);
             that.h = nn.getH (Theta);
 //           console.log ('dataset[0]; = ');
 //           console.log (dataset[0][0].length);

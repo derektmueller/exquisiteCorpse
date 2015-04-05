@@ -4,27 +4,53 @@ body {
 }
 
 /* line 6, ../sass/exquisiteCorpse.scss */
+canvas, div, body {
+  box-sizing: border-box;
+}
+
+/* line 10, ../sass/exquisiteCorpse.scss */
 #canvas-container,
+#canvas-compressed-container,
 #ai-canvas-container, .jd-controls {
   margin: auto;
 }
 
-/* line 11, ../sass/exquisiteCorpse.scss */
+/* line 16, ../sass/exquisiteCorpse.scss */
 #canvas-container {
   cursor: pointer;
 }
+/* line 18, ../sass/exquisiteCorpse.scss */
+#canvas-container canvas {
+  visibility: hidden !important;
+}
 
-/* line 15, ../sass/exquisiteCorpse.scss */
-#ai-paper, #canvas-container canvas:last-child {
+/* line 23, ../sass/exquisiteCorpse.scss */
+#canvas-compressed {
+  cursor: pointer;
+}
+
+/* line 27, ../sass/exquisiteCorpse.scss */
+#ai-paper, #canvas-container canvas:last-child, #canvas-compressed {
   border: 1px solid black;
 }
 
-/* line 19, ../sass/exquisiteCorpse.scss */
+/* line 31, ../sass/exquisiteCorpse.scss */
+#ai-paper, #canvas-compressed {
+  position: relative;
+  top: -252px;
+}
+
+/* line 36, ../sass/exquisiteCorpse.scss */
+#ai-paper {
+  top: -256px;
+}
+
+/* line 40, ../sass/exquisiteCorpse.scss */
 #ai-paper {
   border-top: none;
 }
 
-/* line 23, ../sass/exquisiteCorpse.scss */
+/* line 44, ../sass/exquisiteCorpse.scss */
 .jd-clear-button, .jd-clear-button:active, .jd-clear-button:focus {
   outline: 0;
   margin: 0;
@@ -34,13 +60,14 @@ body {
   box-sizing: border-box;
 }
 
-/* line 34, ../sass/exquisiteCorpse.scss */
+/* line 55, ../sass/exquisiteCorpse.scss */
 .jd-clear-button:hover {
   cursor: pointer;
   background: #f3f3f3;
 }
 
-/* line 40, ../sass/exquisiteCorpse.scss */
-#canvas-container {
+/* line 61, ../sass/exquisiteCorpse.scss */
+#canvas-container,
+#canvas-compressed-container {
   padding: 0;
 }

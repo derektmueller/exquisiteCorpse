@@ -3,17 +3,38 @@ body {
     text-align: center;
 }
 
+canvas, div, body {
+    box-sizing: border-box;
+}
+
 #canvas-container,
+#canvas-compressed-container,
 #ai-canvas-container, .jd-controls {
     margin: auto;
 }
 
 #canvas-container {
     cursor: pointer;
+    canvas {
+        visibility: hidden !important;
+    }
 }
 
-#ai-paper, #canvas-container canvas:last-child {
+#canvas-compressed {
+    cursor: pointer;
+}
+
+#ai-paper, #canvas-container canvas:last-child, #canvas-compressed {
     border: 1px solid black;
+}
+
+#ai-paper, #canvas-compressed {
+    position: relative;
+    top: -252px;
+}
+
+#ai-paper {
+    top: -256px;
 }
 
 #ai-paper {
@@ -37,7 +58,8 @@ body {
     }
 }
 
-#canvas-container {
+#canvas-container,
+#canvas-compressed-container {
     padding: 0;
 }
 

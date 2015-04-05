@@ -19,7 +19,8 @@ function JustDrawing (argsDict) {
         width: 100,
         height: 100,
         name: '',
-        onClear: function () {}
+        onClear: function () {},
+        onDrag: function () {}
     };
 
     proto.unpack.apply (this, [argsDict, defaultPropsDict]);
@@ -87,6 +88,7 @@ JustDrawing.prototype._setUpCanvas = function () {
         }
         surface.refreshCanvases ();
         prevPoint = currPoint;
+        that.onDrag ();
     }, true);
 
     surface.addDropFunction (function (mouseX, mouseY) {
