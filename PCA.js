@@ -25,16 +25,17 @@ PCA.prototype.run = function () {
     var k = this.k;
     var varianceRetention = this.varianceRetention;
     this.preprocess ();
-    console.log ('preprocess');
     var USV = numeric.svd (this.sigma ());
-    console.log ('svd');
 
     if (!k && varianceRetention) {
         var sumOfSingularValues = math.sum (USV.S)
         var sumOfFirstISingularValues = 0;
         for (var i = 0; i < X[0].length; i++) {
             sumOfFirstISingularValues += USV.S[i];
-            if (sumOfFirstISingularValues / sumOfSingularValues <= varianceRetention) {
+            console.log (sumOfFirstISingularValues / sumOfSingularValues);
+            if (1 - sumOfFirstISingularValues / sumOfSingularValues <= 
+                1 - varianceRetention / 100) {
+
                 break;
             }
         }
@@ -85,7 +86,6 @@ PCA.prototype.preprocess = function () {
 PCA.prototype.sigma = function () {
     var X = this.X;
     var sigma = math.dotMultiply (1 / X.length, math.multiply (math.transpose (X), X));
-    console.log ('sigma');
     return sigma;
 };
 
