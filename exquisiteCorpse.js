@@ -19,6 +19,7 @@ function ExquisiteCorpse () {
     this.parseArgs ();
     //this.imageDimensions = [27, 36];
     //this.imageDirectory = 'compressedImages';
+    this.datasetSize = 1;
     this.imageDimensions = [90, 120];
     this.imageDirectory = 'images';
     this.h = null;
@@ -36,7 +37,7 @@ ExquisiteCorpse.prototype.getFileList = function () {
     return Q.Promise (function (resolve) { 
         exec ('find ' + that.imageDirectory + ' -type f', function (err, out) {
             //resolve (out.replace (/\n$/, '').split ("\n").slice (0, 16));
-            resolve (out.replace (/\n$/, '').split ("\n").slice (0, 1));
+            resolve (out.replace (/\n$/, '').split ("\n").slice (0, that.datasetSize));
         });
     });
 };
@@ -44,7 +45,7 @@ ExquisiteCorpse.prototype.getFileList = function () {
 /**
  * Extract pixel data from each file in fileList
  */
-ExquisiteCorpse.prototype.vectorizeImages = function (fileList) {
+ExquisiteCorpse.prototype.getPixelData = function (fileList) {
     var that = this;
     return Q.all (fileList.map (function (filename) { 
         return Q.Promise (function (resolve) {
@@ -58,6 +59,30 @@ ExquisiteCorpse.prototype.vectorizeImages = function (fileList) {
     }));
 };
 
+//ExquisiteCorpse.prototype.vectorizePixelData = function (pixelData) {
+//    return pixelData;
+//};
+
+/**
+ * Capture information only about the contours of the drawing. For each black pixel, add that 
+ * pixel's index to the input vector. Fill remaining parameters with zeroes.
+ */
+ExquisiteCorpse.prototype.vectorizePixelData = function (pixelData) {
+    var n = 486;
+    var vec = new Array (486).join (',').split (',').map (function (elem) {
+        return 0;
+    });
+    var j = 0;
+    for (var i in pixelData) {
+        if (j >= n) break;
+        var datum = pixelData[i];
+        if (datum) {
+            vec[j++] = parseInt (i, 10);
+        }
+    }
+    return vec;
+};
+
 /**
  * Process image data into neural net input
  */
@@ -65,17 +90,16 @@ ExquisiteCorpse.prototype.buildDataset = function () {
     var that = this;
     return Q.Promise (function (resolve) {
         that.getFileList ()
-            .then (that.vectorizeImages.bind (that))
+            .then (that.getPixelData.bind (that))
             .then (function (imageData) { 
-
                 var dataset = imageData.map (that.categorizePixels);
 
-                // reduce dimensionality
+//                // reduce dimensionality
 //                var pca = new PCA (dataset, null, 99)
 //                console.log ('pca = ');
 //                console.log (pca.reducedX[0].length);
-
-                // scale and normalize
+//
+//                // scale and normalize
 //                var mu = math.mean (dataset, 0);
 //                var s = math.sqrt (
 //                    math.subtract (math.mean (math.square (dataset), 0),  math.square (mu)));
@@ -91,10 +115,9 @@ ExquisiteCorpse.prototype.buildDataset = function () {
                 var labeledDataset = [];
                 for (var i in dataset) {
                     labeledDataset.push (
-                        [dataset[i].slice (0, pixelCount / 2), 
+                        [that.vectorizePixelData (dataset[i].slice (0, pixelCount / 2)), 
                          dataset[i].slice (pixelCount / 2)]);
                 }
-
                 resolve (labeledDataset); 
             })
             .catch (function (error) {
@@ -112,14 +135,16 @@ ExquisiteCorpse.prototype.learn = function () {
         .then (function (dataset) {
             var pixelCount = math.prod (that.imageDimensions);
             var nn = new NN ([
-                pixelCount / 2, 
-                pixelCount / 2, 
+                dataset[0][0].length, 
+                //pixelCount / 2, 
                 pixelCount / 2]);
+            console.log ('nn = ');
+            console.log (nn);
             nn.trainingSet = dataset;
             nn.enableGradientChecking = false;
             var Theta = nn.gradientDescent (1, 0.10);
             that.h = nn.getH (Theta);
-//           console.log ('dataset[0]; = ');
+           //console.log ('dataset[0]; = ');
 //           console.log (dataset[0][0].length);
 //            that.h (dataset[0][0]);
             //return;
