@@ -69,7 +69,7 @@ JustDrawing.prototype._setUpCanvas = function () {
 
     var stroke = surface.addPath ({ 
         name: 'stroke',
-        lineWidth: 5, color: 'black', isFilled: false, 
+        lineWidth: 1, color: 'black', isFilled: false, 
         lineJoin: 'round'});
 
     var prevPoint = null;

@@ -2,7 +2,7 @@
 var ExquisiteCorpseBase = (function () {
 
 function ExquisiteCorpseBase () {
-    
+    this.ink = 486;    
 };
 
 /**
@@ -10,9 +10,10 @@ function ExquisiteCorpseBase () {
  */
 ExquisiteCorpseBase.prototype.categorizePixels = function (data) {
     var values = [];
+    var threshold = 255 * 3 * 0.85;
     for (var i = 0; i < data.length; i += 4) {
         values.push (
-            data[i] + data[i + 1] + data[i + 2] == (255 * 3) ? 0 : 1
+            data[i] + data[i + 1] + data[i + 2] >= threshold ? 0 : 1
         ); 
     }
     return values;
@@ -27,8 +28,8 @@ ExquisiteCorpseBase.prototype.categorizePixels = function (data) {
  * pixel's index to the input vector. Fill remaining parameters with zeroes.
  */
 ExquisiteCorpseBase.prototype.vectorizePixelData = function (pixelData) {
-    var n = 486;
-    var vec = new Array (486).join (',').split (',').map (function (elem) {
+    var n = this.ink;
+    var vec = new Array (n).join (',').split (',').map (function (elem) {
         return 0;
     });
     var j = 0;

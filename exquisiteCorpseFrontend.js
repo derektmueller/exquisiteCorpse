@@ -57,7 +57,7 @@ ExquisiteCorpseFrontend.prototype.setUpNN = function () {
     setInterval (function () {
     //setTimeout (function () {
         that.vectorizeDrawing ();
-    }, 1250);
+    }, 750);
 };
 
 ExquisiteCorpseFrontend.prototype.scaleDownImage = function (data) {
@@ -168,14 +168,16 @@ ExquisiteCorpseFrontend.prototype.reduceDimensionality = function (example) {
 
 ExquisiteCorpseFrontend.prototype.vectorizeDrawing = function () {
     var imageData = this.getImageData (this.userPaper$[0]);
+    var scaled = this.scaleDownImage (
+        this.categorizePixels (imageData.data));
+    console.log ('ink');
+    console.log (scaled.filter (function (elem) { return elem; }).length);
     var example = 
         this.reduceDimensionality (
             this.scaleAndMeanNormalize (
-                this.vectorizePixelData (
-                    this.scaleDownImage (
-                        this.categorizePixels (imageData.data)))));
-    console.log ('example = ');
-    console.log (this.h (example));
+                this.vectorizePixelData (scaled)));
+    //console.log ('example = ');
+    //console.log (this.h (example));
     this.restoreImage (this.h (example));
 };
 

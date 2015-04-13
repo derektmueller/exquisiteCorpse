@@ -20,7 +20,7 @@ function ExquisiteCorpse () {
     this.parseArgs ();
     //this.imageDimensions = [27, 36];
     //this.imageDirectory = 'compressedImages';
-    this.datasetSize = 140;
+    this.datasetSize = 50;
     this.imageDimensions = [90, 120];
     this.imageDirectory = 'images';
     this.h = null;
@@ -68,7 +68,7 @@ ExquisiteCorpse.prototype.buildDataset = function () {
     var that = this;
 
     return Q.Promise (function (resolve) {
-        if (that.options.infile) {
+        if (that.options.infile) { // read dataset from file instead of building it
             
             fs.readFile (that.options.infile, function (err, data) {
                 var dataset = new Dataset (JSON.parse (data));
@@ -79,7 +79,9 @@ ExquisiteCorpse.prototype.buildDataset = function () {
             });
             return;
         }
-        that.getFileList ()
+
+        // build dataset from images in specified directory
+        that.getFileList () 
             .then (that.getPixelData.bind (that))
             .then (function (imageData) { 
                 var dataset = imageData.map (that.categorizePixels);
@@ -96,7 +98,7 @@ ExquisiteCorpse.prototype.buildDataset = function () {
                 }
 
                 that.postProcessDataset (labeledDataset, vectors);
-                if (!that.options.preprocessOnly) resolve (labeledDataset); 
+                if (!that.options.buildOnly) resolve (labeledDataset); 
             })
             .catch (function (error) {
                 /**/console.log (error); console.log (error.stack);
@@ -105,7 +107,6 @@ ExquisiteCorpse.prototype.buildDataset = function () {
 };
 
 ExquisiteCorpse.prototype.scaleAndMeanNormalize = function (vectors) {
-    // scale and normalize
     var mu = math.mean (vectors, 0);
     var s = math.sqrt (
         math.subtract (math.mean (math.square (vectors), 0),  math.square (mu)));
@@ -128,7 +129,7 @@ ExquisiteCorpse.prototype.postProcessDataset = function (labeledDataset, vectors
     for (var i in pca.reducedX) {
         labeledDataset[i][0]= pca.reducedX[i];
     }
-    if (this.options.preprocessOnly) 
+    if (this.options.buildOnly) 
         this.writeOutput (
             new Dataset ({
                 dataset: labeledDataset, 
@@ -150,25 +151,32 @@ ExquisiteCorpse.prototype.learn = function () {
                 dataset[0][0].length, 
                 dataset[0][0].length, 
                 dataset[0][0].length, 
+                //dataset[0][0].length, 
+                //dataset[0][0].length, 
                 pixelCount / 2]);
-            nn.lambda = 0.01;
+            nn.lambda = 0.001;
             nn.trainingSet = dataset;
             //nn.enableRegularization = false;
             nn.enableGradientChecking = false;
             console.log ('nn = ');
             console.log (nn);
-            var Theta = nn.gradientDescent (80, 0.3);
-            that.h = nn.getH (Theta);
-            var output = {
-                Theta: Theta,
-                mu: that.mu,
-                sigma: that.sigma,
-                reducedU: that.reducedU,
-            };
-           //console.log ('dataset[0]; = ');
-//           console.log (dataset[0][0].length);
-//            that.h (dataset[0][0]);
-            that.writeOutput (JSON.stringify (output));
+            var Theta = nn.gradientDescent (50, 1.0, function (Theta) {
+                var output = {
+                    Theta: Theta,
+                    mu: that.mu,
+                    sigma: that.sigma,
+                    reducedU: that.reducedU,
+                };
+                that.writeOutput (JSON.stringify (output));
+            });
+            //that.h = nn.getH (Theta);
+//            var output = {
+//                Theta: Theta,
+//                mu: that.mu,
+//                sigma: that.sigma,
+//                reducedU: that.reducedU,
+//            };
+//            that.writeOutput (JSON.stringify (output));
         })
         .catch (function (error) {
             /**/console.log (error); console.log (error.stack);
@@ -176,16 +184,17 @@ ExquisiteCorpse.prototype.learn = function () {
 };
 
 ExquisiteCorpse.prototype.writeOutput = function (output) {
-    fs.writeFile (this.options.filename, output, function (err) {
-        exit ();
-    });
+    fs.writeFileSync (this.options.filename, output);//, function (err) {
+        //console.log ('written');
+        //exit ();
+    //});
 };
 
 
 ExquisiteCorpse.prototype.parseArgs = function () {
     var getOpt = require('node-getopt').create([
         ['f', 'filename=ARG' , 'output file'],
-        ['p', 'preprocessOnly' , 'prepdocess dataset only'],
+        ['p', 'buildOnly' , 'build dataset only'],
         ['i', 'infile=ARG' , 'input file'],
     ])          
     .bindHelp();

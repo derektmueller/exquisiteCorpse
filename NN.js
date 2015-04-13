@@ -488,8 +488,9 @@ NN.prototype.reshape = function (arr, dimensions) {
  * Train parameters on training set
  * @param Number iterations number of iterations of gradient descent
  * @param Number alpha the learning rate
+ * @param Function callback called with Theta for each iteration
  */
-NN.prototype.gradientDescent = function (iterations, alpha) {
+NN.prototype.gradientDescent = function (iterations, alpha, callback) {
     iterations = typeof iterations === 'undefined' ? 1000 : iterations; 
     alpha = typeof alpha === 'undefined' ? 0.01 : alpha; 
     var Theta = this.initTheta (), 
@@ -507,6 +508,7 @@ NN.prototype.gradientDescent = function (iterations, alpha) {
             )
         );
         Theta = this.reshapeParams (unrolled);
+        callback (Theta);
         console.log (this.J (Theta));
     }
     

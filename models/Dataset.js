@@ -1,10 +1,13 @@
 var Dataset = (function () {
 
+/**
+ * Model for dataset and dataset meta data
+ */
 function Dataset (params) {
     this.dataset = params.dataset;
-    this.mu = params.mu;
-    this.sigma = params.sigma;
-    this.reducedU = params.reducedU;
+    this.mu = params.mu; // mean of training example parameters
+    this.sigma = params.sigma; // std of training example parameters
+    this.reducedU = params.reducedU; 
 };
 
 Dataset.prototype.toJSON = function () {
