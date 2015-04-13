@@ -7,6 +7,7 @@ var exec = require ('child_process').exec,
     getPixels = require ('get-pixels'),
     NN = require ('./NN'),
     PCA = require ('./PCA'),
+    Dataset = require ('./models/Dataset'),
     ExquisiteCorpseBase = require ('./exquisiteCorpseBase'),
     fs = require ('fs')
     ;
@@ -59,29 +60,6 @@ ExquisiteCorpse.prototype.getPixelData = function (fileList) {
     }));
 };
 
-//ExquisiteCorpse.prototype.vectorizePixelData = function (pixelData) {
-//    return pixelData;
-//};
-
-/**
- * Capture information only about the contours of the drawing. For each black pixel, add that 
- * pixel's index to the input vector. Fill remaining parameters with zeroes.
- */
-ExquisiteCorpse.prototype.vectorizePixelData = function (pixelData) {
-    var n = 486;
-    var vec = new Array (486).join (',').split (',').map (function (elem) {
-        return 0;
-    });
-    var j = 0;
-    for (var i in pixelData) {
-        if (j >= n) break;
-        var datum = pixelData[i];
-        if (datum) {
-            vec[j++] = parseInt (i, 10);
-        }
-    }
-    return vec;
-};
 
 /**
  * Process image data into neural net input
@@ -93,7 +71,11 @@ ExquisiteCorpse.prototype.buildDataset = function () {
         if (that.options.infile) {
             
             fs.readFile (that.options.infile, function (err, data) {
-                resolve (JSON.parse (data)); 
+                var dataset = new Dataset (JSON.parse (data));
+                that.mu = dataset.mu;
+                that.sigma = dataset.sigma;
+                that.reducedU = dataset.reducedU;
+                resolve (dataset.dataset); 
             });
             return;
         }
@@ -101,22 +83,6 @@ ExquisiteCorpse.prototype.buildDataset = function () {
             .then (that.getPixelData.bind (that))
             .then (function (imageData) { 
                 var dataset = imageData.map (that.categorizePixels);
-
-//                // reduce dimensionality
-//                var pca = new PCA (dataset, null, 99)
-//                console.log ('pca = ');
-//                console.log (pca.reducedX[0].length);
-//
-//                // scale and normalize
-//                var mu = math.mean (dataset, 0);
-//                var s = math.sqrt (
-//                    math.subtract (math.mean (math.square (dataset), 0),  math.square (mu)));
-//                var divisors = s.map (function (std) {
-//                    return std ? std : 1;
-//                });
-//                for (var i in dataset) {
-//                    dataset[i] = math.dotDivide (math.subtract (dataset[i], mu), divisors);
-//                }
 
                 // split image data into feature vectors and labels
                 var pixelCount = math.prod (that.imageDimensions);
@@ -138,25 +104,38 @@ ExquisiteCorpse.prototype.buildDataset = function () {
     });
 };
 
-ExquisiteCorpse.prototype.postProcessDataset = function (labeledDataset, vectors) {
+ExquisiteCorpse.prototype.scaleAndMeanNormalize = function (vectors) {
     // scale and normalize
-//    var mu = math.mean (vectors, 0);
-//    var s = math.sqrt (
-//        math.subtract (math.mean (math.square (vectors), 0),  math.square (mu)));
-//    var divisors = s.map (function (std) {
-//        return std ? std : 1;
-//    });
-//    for (var i in vectors) {
-//        vectors[i] = math.dotDivide (math.subtract (vectors[i], mu), divisors);
-//    }
+    var mu = math.mean (vectors, 0);
+    var s = math.sqrt (
+        math.subtract (math.mean (math.square (vectors), 0),  math.square (mu)));
+    var divisors = s.map (function (std) {
+        return std ? std : 1;
+    });
+    for (var i in vectors) {
+        vectors[i] = math.dotDivide (math.subtract (vectors[i], mu), divisors);
+    }
+    this.mu = mu;
+    this.sigma = s;
+};
 
-    var pca = new PCA (vectors, null, 99.9)
-    console.log ('pca = ');
+ExquisiteCorpse.prototype.postProcessDataset = function (labeledDataset, vectors) {
+    this.scaleAndMeanNormalize (vectors);
+    // reduce dimensionality, preserving 99.9% of variance
+    var pca = new PCA (vectors, null, 99.9, true)
+    console.log ('pca.k = ');
     console.log (pca.reducedX[0].length);
     for (var i in pca.reducedX) {
         labeledDataset[i][0]= pca.reducedX[i];
     }
-    if (this.options.preprocessOnly) this.writeOutput (JSON.stringify (labeledDataset));
+    if (this.options.preprocessOnly) 
+        this.writeOutput (
+            new Dataset ({
+                dataset: labeledDataset, 
+                mu: this.mu,
+                sigma: this.sigma,
+                reducedU: pca.reducedU
+            }).toJSON ());
 };
 
 /**
@@ -172,18 +151,24 @@ ExquisiteCorpse.prototype.learn = function () {
                 dataset[0][0].length, 
                 dataset[0][0].length, 
                 pixelCount / 2]);
-            nn.lambda = 0.001;
+            nn.lambda = 0.01;
             nn.trainingSet = dataset;
             //nn.enableRegularization = false;
             nn.enableGradientChecking = false;
             console.log ('nn = ');
             console.log (nn);
-            var Theta = nn.gradientDescent (1, 0.3);
+            var Theta = nn.gradientDescent (80, 0.3);
             that.h = nn.getH (Theta);
+            var output = {
+                Theta: Theta,
+                mu: that.mu,
+                sigma: that.sigma,
+                reducedU: that.reducedU,
+            };
            //console.log ('dataset[0]; = ');
 //           console.log (dataset[0][0].length);
 //            that.h (dataset[0][0]);
-            that.writeOutput (JSON.stringify (Theta));
+            that.writeOutput (JSON.stringify (output));
         })
         .catch (function (error) {
             /**/console.log (error); console.log (error.stack);

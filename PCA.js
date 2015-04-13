@@ -11,7 +11,8 @@ if (typeof require !== 'undefined') {
 
 var PCA = (function () {
 
-function PCA (X, k, varianceRetention) {
+function PCA (X, k, varianceRetention, skipPreproccessing) {
+    skipPreproccessing = typeof skipPreproccessing === 'undefined' ? true : skipPreproccessing; 
     this.mu;
     this.s;
     this.X = math.clone (X);
@@ -20,11 +21,15 @@ function PCA (X, k, varianceRetention) {
     this.run ();
 }
 
+PCA.reduceDimensionality = function (X, reducedU) {
+    return math.multiply (X, math.transpose (reducedU));
+};
+
 PCA.prototype.run = function () {
     var X = this.X;
     var k = this.k;
     var varianceRetention = this.varianceRetention;
-    this.preprocess ();
+    if (!this.skipPreproccessing) this.preprocess ();
     var USV = numeric.svd (this.sigma ());
 
     if (!k && varianceRetention) {
@@ -46,7 +51,7 @@ PCA.prototype.run = function () {
 
     this.reducedDimension = k;
     this.reducedU = USV.U.slice (0, k);
-    this.reducedX = math.multiply (X, math.transpose (this.reducedU));
+    this.reducedX = PCA.reduceDimensionality (X, this.reducedU);
 };
 
 /**

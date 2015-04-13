@@ -93,6 +93,7 @@ JustDrawing.prototype._setUpCanvas = function () {
 
     surface.addDropFunction (function (mouseX, mouseY) {
         prevPoint = null;
+        that.onDrag ();
     });
     
     newRegion.addThing (surface);

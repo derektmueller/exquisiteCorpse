@@ -3,8 +3,10 @@ var ExquisiteCorpseFrontend = (function () {
 
 function ExquisiteCorpseFrontend () {
     var that = this;
-    this.imageDimensions = [27, 36 / 2];
-    this.scaleFactor = 14;
+    //this.imageDimensions = [27, 36 / 2];
+    this.imageDimensions = [90, 120 / 2];
+    //this.scaleFactor = 14;
+    this.scaleFactor = 5;
     this.canvasDimensions = this.imageDimensions.map (function (elem) { 
         return elem * that.scaleFactor; 
     });
@@ -31,16 +33,21 @@ ExquisiteCorpseFrontend.prototype.getTheta = function () {
     return new Promise (function (resolve) {
         $.ajax ({
             url: 'theta.json',
+            //url: 'params/16_images_27_by_36_300_iterations.json',
             dataType: 'json',
             success: function (data) {
-                resolve (data);
+                that.Theta = data.Theta;
+                that.mu = data.mu;
+                that.sigma = data.sigma;
+                that.reducedU = data.reducedU;
+                resolve ();
             }
         });
     });
 };
 
-ExquisiteCorpseFrontend.prototype.setUpNN = function (Theta) {
-    this.Theta = Theta;    
+ExquisiteCorpseFrontend.prototype.setUpNN = function () {
+    var Theta = this.Theta; 
     var S = Theta.map (function (matrix) { return matrix.length; });
     S.push (Theta[Theta.length - 1][0].length - 1);
     this.nn = new NN (S);
@@ -48,8 +55,9 @@ ExquisiteCorpseFrontend.prototype.setUpNN = function (Theta) {
     console.log ('done');
     var that = this;
     setInterval (function () {
+    //setTimeout (function () {
         that.vectorizeDrawing ();
-    }, 250);
+    }, 1250);
 };
 
 ExquisiteCorpseFrontend.prototype.scaleDownImage = function (data) {
@@ -107,7 +115,7 @@ ExquisiteCorpseFrontend.prototype.categoriesToPixels = function (data) {
 };
 
 ExquisiteCorpseFrontend.prototype.threshold = function (data, threshold) {
-    threshold = typeof threshold === 'undefined' ? 0.99 : threshold; 
+    threshold = typeof threshold === 'undefined' ? 0.5 : threshold; 
     data = data.map (function (elem) {    
         return elem > threshold ? 1 : 0;
     });
@@ -139,15 +147,36 @@ ExquisiteCorpseFrontend.prototype.getImageData = function (canvas) {
     return ctx.getImageData (0, 0, canvas.width, canvas.height);
 };
 
+//ExquisiteCorpseFrontend.prototype.vectorizeDrawing = function () {
+//    var imageData = this.getImageData (this.userPaper$[0]);
+//    var example = this.scaleDownImage (this.categorizePixels (imageData.data));
+//    this.restoreImage (this.h (example));
+//
+//    //var pixels = this.categoriesToPixels (this.scaleUpImage (example));
+//    //this.putImageData (pixels, this.userPaperCompressed$[0]);
+//};
+
+ExquisiteCorpseFrontend.prototype.scaleAndMeanNormalize = function (example) {
+    if (!this.mu || !this.sigma) return example;
+    return math.dotDivide (math.subtract (example, this.mu), this.sigma);
+};
+
+ExquisiteCorpseFrontend.prototype.reduceDimensionality = function (example) {
+    if (!this.reducedU) return example;
+    return PCA.reduceDimensionality ([example], this.reducedU)[0];
+};
+
 ExquisiteCorpseFrontend.prototype.vectorizeDrawing = function () {
     var imageData = this.getImageData (this.userPaper$[0]);
-    var example = this.scaleDownImage (this.categorizePixels (imageData.data));
-    //console.log (this.categorizePixels (imageData.data).reverse ());
-    //console.log (example.reverse ());
+    var example = 
+        this.reduceDimensionality (
+            this.scaleAndMeanNormalize (
+                this.vectorizePixelData (
+                    this.scaleDownImage (
+                        this.categorizePixels (imageData.data)))));
+    console.log ('example = ');
+    console.log (this.h (example));
     this.restoreImage (this.h (example));
-    return;
-    var pixels = this.categoriesToPixels (this.scaleUpImage (example));
-    this.putImageData (pixels, this.userPaperCompressed$[0]);
 };
 
 ExquisiteCorpseFrontend.prototype.setUpPaper = function () {
