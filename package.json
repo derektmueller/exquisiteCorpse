@@ -1,0 +1,17 @@
+{
+  "name": "exquisiteCorpse",
+  "version": "1.0.0",
+  "description": "Automatic exquisite corpse app",
+  "main": "exquisiteCorpse.js",
+  "dependencies": {
+    "get-pixels": "^3.2.1",
+    "mathjs": "^1.5.0",
+    "numeric": "^1.2.6"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git@bitbucket.org:dtmuelle/exquisitecorpse.git"
+  },
+  "author": "Derek Mueller"
+}
