@@ -5,6 +5,8 @@ An AI drawing completion app that uses a neural network trained on line drawings
 
 The training set is built from pixel data extracted from the line drawing images. Each image is converted to black and white and split into a feature vector (the top half of the image) and a label (the bottom half of the image). The feature vector is compressed by selecting only location information from the first ~500 black pixels, which isolates just the contours of the line drawing. Further compression is achieved through principal component analysis.
 
+![Alt Text](https://github.com/parenparen/exquisiteCorpse/raw/master/demo.gif)
+
 ## Demo
 
 www.derekmueller.info/exquisiteCorpse
