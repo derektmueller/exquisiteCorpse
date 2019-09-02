@@ -9,7 +9,7 @@ The training set is built from pixel data extracted from the line drawing images
 
 ## Demo
 
-www.derekmueller.info/exquisiteCorpse
+https://derekmueller.info/views/exquisiteCorpse.html
 
 ## Installation
 
