@@ -5,7 +5,7 @@
   "main": "exquisiteCorpse.js",
   "dependencies": {
     "get-pixels": "^3.2.1",
-    "mathjs": "^1.5.0",
+    "mathjs": "^6.2.3",
     "numeric": "^1.2.6"
   },
   "devDependencies": {},
